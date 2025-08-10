@@ -41,6 +41,7 @@ const usernameElm = document.getElementById("username");
 const boughtCount = document.getElementById("boughtCount");
 const loadingPage = document.getElementById("loadingPage");
 const serverUrl = "https://servergiftopia-production.up.railway.app/";
+const noGift = document.getElementById("noGift");
 let currentElementModal = {};
 let transferDataId = 0;
 function showToast(message, type) {
@@ -359,6 +360,11 @@ if(!(userUIdata.error)){
             const gifts = await doFetch("getUserGifts", "POST", {}, true);
             profileGifts.innerHTML = "";
             boughtCount.innerText = gifts.length;
+            if(gifts.length === 0){
+                noGift.classList.remove("hide");
+            } else{
+                noGift.classList.add("hide");
+            }
             gifts.map((el) => {
                 const card = document.createElement('div');
                 card.className = `card ${el.status.toLowerCase()}`;
