@@ -561,7 +561,7 @@ if(!(userUIdata.error)){
 
             typingTimer = setTimeout(async () => {
                 try {
-                    const data = value == +value ? +value : value.replaceAll("@");
+                    const data = value == +value ? +value : value.replaceAll("@", "");
 
                     const res = await doFetch("searchUser", "POST", {data: data});
                     if(res.data){
