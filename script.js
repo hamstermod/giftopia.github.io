@@ -91,67 +91,71 @@ let isMaintance = false;
 if(isMaintance){
     document.getElementById("maintancePage").classList.remove("hide");
 }
+let userGiftsInterval;
+async function doFetch(path, method, bodyReq = {}, init = false){
+    try{
+        let initdata = {};
+        if(init){
+            initdata = {initData: search};
+        }
+        const body = method === "GET" ? {} : {body: JSON.stringify({...bodyReq, ...initdata})};
+        let res = await fetch(`${serverUrl}${path}`, {
+            method: method,
+            headers: { "Content-Type": "application/json" },
+            ...body
+        })
+
+        if(res.status === 200){
+            res = await res.json();
+            return res;
+        }
+        res = await res.json();
+        showToast((res.message || "Server Error: Unable to connect. Please try again later."), "error");
+        return {error: true};
+    }catch(e) {
+        showToast("Server Error: Unable to connect. Please try again later.", "error");
+        return {error: true};
+    }
+}
+async function renderUserGifts(){
+    let i = 0;
+    let dataArr = await doFetch("getUsersGifts", "GET");
+    dataArr = dataArr.data || [];
+
+    if(dataArr.length > 0){
+        userGiftsInterval = setInterval(() => {
+            usersGiftNotification.classList.add("notification");
+            const targ = dataArr[i];
+            if(targ.img.endsWith("json")){
+                new DotLottie({
+                    autoplay: true,
+                    loop: true,
+                    canvas: emojiCanvas,
+                    src: targ.img,
+                });
+                emojiCanvas.classList.remove("hide");
+                emojiImg.classList.add("hide");
+            } else{
+                emojiImg.src = targ.img;
+                emojiCanvas.classList.add("hide");
+                emojiImg.classList.remove("hide");
+            }
+            // emojiImg = targ.img
+            giftsUsersUsername.innerText = targ.username || targ.firstname;
+            giftsUsersItemName.innerText = targ.name;
+            i++;
+            if(dataArr.length === i){
+                i = 0;
+            }
+
+        }, 5000)
+    }
+}
+renderUserGifts();
 if(!(userUIdata.error)){
     window.onload = () => {
-        async function doFetch(path, method, bodyReq = {}, init = false){
-            try{
-                let initdata = {};
-                if(init){
-                    initdata = {initData: search};
-                }
-                const body = method === "GET" ? {} : {body: JSON.stringify({...bodyReq, ...initdata})};
-                let res = await fetch(`${serverUrl}${path}`, {
-                    method: method,
-                    headers: { "Content-Type": "application/json" },
-                    ...body
-                })
 
-                if(res.status === 200){
-                    res = await res.json();
-                    return res;
-                }
-                res = await res.json();
-                showToast((res.message || "Server Error: Unable to connect. Please try again later."), "error");
-                return {error: true};
-            }catch(e) {
-                showToast("Server Error: Unable to connect. Please try again later.", "error");
-                return {error: true};
-            }
-        }
-        async function renderUserGifts(){
-            let i = 0;
-            let dataArr = await doFetch("getUsersGifts", "GET");
-            dataArr = dataArr.data || [];
 
-           if(dataArr.length > 0){
-               setInterval(() => {
-                   usersGiftNotification.className = "notification";
-                   const targ = dataArr[i];
-                   if(targ.img.endsWith("json")){
-                       new DotLottie({
-                           autoplay: true,
-                           loop: true,
-                           canvas: emojiCanvas,
-                           src: targ.img,
-                       });
-                       emojiCanvas.classList.remove("hide");
-                       emojiImg.classList.add("hide");
-                   } else{
-                       emojiImg.src = targ.img;
-                       emojiCanvas.classList.add("hide");
-                       emojiImg.classList.remove("hide");
-                   }
-                   // emojiImg = targ.img
-                   giftsUsersUsername.innerText = targ.username || targ.firstname;
-                   giftsUsersItemName.innerText = targ.name;
-                   i++;
-                   if(dataArr.length === i){
-                       i = 0;
-                   }
-               }, 5000)
-           }
-        }
-        renderUserGifts();
         setTimeout(() => {
             loadingPage.classList.add("hide");
         }, 2000)
@@ -183,8 +187,11 @@ if(!(userUIdata.error)){
             if(page === "main"){
                 main.classList.remove("hide");
                 mainPageButton.classList.add("active");
+                usersGiftNotification.classList.remove("hideVis");
                 return;
             }
+            usersGiftNotification.classList.add("hideVis");
+
             if(page === "market"){
                 market.classList.remove("hide");
                 marketPageButton.classList.add("active");

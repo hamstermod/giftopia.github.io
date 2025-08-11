@@ -364,9 +364,10 @@ h2 {
 }
 
 #profile {
-    background-color: #1e1e1e;
+    /*background-color: #1e1e1e;*/
     border-radius: 12px;
     padding: 20px;
+    margin-top: -100px;
 }
 .profile-container{
     margin-top: 50px;
@@ -854,6 +855,7 @@ input::placeholder {
 }
 #usersGiftNotification{
     transform: translateX(100%);
+    max-height: 50px;
 }
 #emojiCanvas{
     width: 50px;
@@ -914,4 +916,7 @@ input::placeholder {
 
 .item:hover {
     text-decoration: underline;
+}
+.hideVis{
+    visibility: hidden;
 }
