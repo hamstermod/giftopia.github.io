@@ -123,9 +123,28 @@ async function renderUserGifts(){
     dataArr = dataArr.data || [];
 
     if(dataArr.length > 0){
+        usersGiftNotification.classList.add("notification");
+        let targ = dataArr[i];
+        if(targ.img.endsWith("json")){
+            new DotLottie({
+                autoplay: true,
+                loop: true,
+                canvas: emojiCanvas,
+                src: targ.img,
+            });
+            emojiCanvas.classList.remove("hide");
+            emojiImg.classList.add("hide");
+        } else{
+            emojiImg.src = targ.img;
+            emojiCanvas.classList.add("hide");
+            emojiImg.classList.remove("hide");
+        }
+        giftsUsersUsername.innerText = targ.username || targ.firstname;
+        giftsUsersItemName.innerText = targ.name;
+        i++;
         userGiftsInterval = setInterval(() => {
-            usersGiftNotification.classList.add("notification");
-            const targ = dataArr[i];
+
+             targ = dataArr[i];
             if(targ.img.endsWith("json")){
                 new DotLottie({
                     autoplay: true,
@@ -140,7 +159,6 @@ async function renderUserGifts(){
                 emojiCanvas.classList.add("hide");
                 emojiImg.classList.remove("hide");
             }
-            // emojiImg = targ.img
             giftsUsersUsername.innerText = targ.username || targ.firstname;
             giftsUsersItemName.innerText = targ.name;
             i++;
