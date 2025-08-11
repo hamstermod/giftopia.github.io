@@ -852,3 +852,66 @@ input::placeholder {
 #maintancePage{
     background-image: url("./images/maintance.png");
 }
+#usersGiftNotification{
+    transform: translateX(100%);
+}
+#emojiCanvas{
+    width: 50px;
+}
+#giftsUsersUsername{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 170px;
+}
+.notification {
+    background-color: #282828;
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 600px;
+    animation: slideIn 5s ease-out forwards;
+    animation-iteration-count: infinite;
+    transform: translateX(100%);
+}
+@keyframes slideIn {
+    0% {
+        transform: translateX(100%);
+    }
+    20% {
+        transform: translateX(0);
+    }
+    80%{
+        transform: translateX(0);
+    }
+    100%{
+        transform: translateX(-100%);
+    }
+}
+.notification img.emoji{
+    width: 15px;
+}
+
+.emoji {
+    font-size: 1.5rem;
+}
+
+.user {
+    font-weight: bold;
+    color: #ffcc00;
+}
+
+.action {
+    color: white;
+}
+
+.item {
+    color: #4fa3f7;
+    text-decoration: none;
+}
+
+.item:hover {
+    text-decoration: underline;
+}

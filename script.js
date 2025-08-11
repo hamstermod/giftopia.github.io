@@ -40,7 +40,12 @@ const userImg = document.getElementById("userImg");
 const usernameElm = document.getElementById("username");
 const boughtCount = document.getElementById("boughtCount");
 const loadingPage = document.getElementById("loadingPage");
-const serverUrl = "https://servergiftopia-production.up.railway.app/";
+const emojiImg = document.getElementById("emojiImg");
+const emojiCanvas = document.getElementById("emojiCanvas");
+const giftsUsersUsername = document.getElementById("giftsUsersUsername");
+const giftsUsersItemName = document.getElementById("giftsUsersItemName");
+const usersGiftNotification = document.getElementById("usersGiftNotification");
+const serverUrl = "http://localhost:3000/" &&  "https://servergiftopia-production.up.railway.app/";
 const noGift = document.getElementById("noGift");
 let currentElementModal = {};
 let transferDataId = 0;
@@ -88,20 +93,6 @@ if(isMaintance){
 }
 if(!(userUIdata.error)){
     window.onload = () => {
-        setTimeout(() => {
-            loadingPage.classList.add("hide");
-        }, 2000)
-        const {photo_url, username, firstname} = userUIdata.user;
-        userImg.src = photo_url;
-        usernameElm.innerText = username || firstname;
-
-        const formatter = new Intl.NumberFormat('en', {
-            notation: 'compact',
-            compactDisplay: 'short'
-        });
-        let currentPage = "";
-
-
         async function doFetch(path, method, bodyReq = {}, init = false){
             try{
                 let initdata = {};
@@ -120,7 +111,6 @@ if(!(userUIdata.error)){
                     return res;
                 }
                 res = await res.json();
-                // console.log(res)
                 showToast((res.message || "Server Error: Unable to connect. Please try again later."), "error");
                 return {error: true};
             }catch(e) {
@@ -128,6 +118,55 @@ if(!(userUIdata.error)){
                 return {error: true};
             }
         }
+        async function renderUserGifts(){
+            let i = 0;
+            let dataArr = await doFetch("getUsersGifts", "GET");
+            dataArr = dataArr.data || [];
+
+           if(dataArr.length > 0){
+               setInterval(() => {
+                   usersGiftNotification.className = "notification";
+                   const targ = dataArr[i];
+                   if(targ.img.endsWith("json")){
+                       new DotLottie({
+                           autoplay: true,
+                           loop: true,
+                           canvas: emojiCanvas,
+                           src: targ.img,
+                       });
+                       emojiCanvas.classList.remove("hide");
+                       emojiImg.classList.add("hide");
+                   } else{
+                       emojiImg.src = targ.img;
+                       emojiCanvas.classList.add("hide");
+                       emojiImg.classList.remove("hide");
+                   }
+                   // emojiImg = targ.img
+                   giftsUsersUsername.innerText = targ.username || targ.firstname;
+                   giftsUsersItemName.innerText = targ.name;
+                   i++;
+                   if(dataArr.length === i){
+                       i = 0;
+                   }
+               }, 5000)
+           }
+        }
+        renderUserGifts();
+        setTimeout(() => {
+            loadingPage.classList.add("hide");
+        }, 2000)
+        const {photo_url, username, firstname} = userUIdata.user;
+        userImg.src = photo_url;
+        usernameElm.innerText = username || firstname;
+
+        const formatter = new Intl.NumberFormat('en', {
+            notation: 'compact',
+            compactDisplay: 'short'
+        });
+        let currentPage = "";
+
+
+
 
         function openPage(page){
             if(currentPage === page){
@@ -428,8 +467,6 @@ if(!(userUIdata.error)){
 
 
 
-
-// const upgradeCard = document.getElementById('upgradeCard');
         const upgradeOverlay = document.getElementById('upgradeOverlay');
         const upgradeBackdrop = document.getElementById('upgradeBackdrop');
         const upgradeClose = document.getElementById('upgradeClose');
@@ -473,8 +510,6 @@ if(!(userUIdata.error)){
                     upgradeNftImages.style.transform = `translateX(-${count * (upgradeNftImages.scrollWidth / images.length)}px)`;
                 }
                 count++;
-                // console.log(count)
-                // console.log(upgradeNftImages.scrollWidth / images.length)
             }, 1500)
             upgradeOverlay.classList.add('upgrade-open');
             upgradeOverlay.setAttribute('aria-hidden','false');
