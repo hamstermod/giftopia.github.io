@@ -45,7 +45,7 @@ const emojiCanvas = document.getElementById("emojiCanvas");
 const giftsUsersUsername = document.getElementById("giftsUsersUsername");
 const giftsUsersItemName = document.getElementById("giftsUsersItemName");
 const usersGiftNotification = document.getElementById("usersGiftNotification");
-const serverUrl = "http://localhost:3000/" &&  "https://servergiftopia-production.up.railway.app/";
+const serverUrl = "http://localhost:3000/" && "https://servergiftopia-production.up.railway.app/";
 const noGift = document.getElementById("noGift");
 let currentElementModal = {};
 let transferDataId = 0;
@@ -656,9 +656,10 @@ if(!(userUIdata.error)){
                     if(e === "paid"){
                         showToast("Success", "success");
                         closeModal();
-                        renderGift();
+                        renderProfileGifts();
                         closeModalTransfer();
                         closeProfileGift();
+
                     } else{
                         showToast("Payment Error", "error");
                     }
