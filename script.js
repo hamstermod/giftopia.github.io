@@ -45,6 +45,7 @@ const emojiCanvas = document.getElementById("emojiCanvas");
 const giftsUsersUsername = document.getElementById("giftsUsersUsername");
 const giftsUsersItemName = document.getElementById("giftsUsersItemName");
 const usersGiftNotification = document.getElementById("usersGiftNotification");
+const userId = document.getElementById("userId");
 const serverUrl = "http://localhost:3000/" && "https://servergiftopia-production.up.railway.app/";
 const noGift = document.getElementById("noGift");
 let currentElementModal = {};
@@ -90,6 +91,16 @@ const userUIdata = parseQuery(search);
 let isMaintance = false;
 if(isMaintance){
     document.getElementById("maintancePage").classList.remove("hide");
+}
+
+userId.innerText = userUIdata.user.id;
+userId.onclick = async () => {
+    try {
+        await navigator.clipboard.writeText(userUIdata.user.id);
+        showToast("Successfully copied!", "success");
+    } catch (err) {
+        showToast("Error copied!", "error");
+    }
 }
 let userGiftsInterval;
 async function doFetch(path, method, bodyReq = {}, init = false){

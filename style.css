@@ -385,7 +385,11 @@ h2 {
 #username {
     font-size: 24px;
     font-weight: 600;
+    /*margin-bottom: 20px;*/
+}
+#userId{
     margin-bottom: 20px;
+    color: darkgray;
 }
 
 .stats {
