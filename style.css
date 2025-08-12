@@ -298,6 +298,7 @@ h2 {
 }
 
 .footer-item {
+    width: 100px;
     display: flex;
     flex-direction: column;
     align-items: center;
