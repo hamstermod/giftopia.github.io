@@ -317,12 +317,46 @@ if(!(userUIdata.error)){
             gifts.map((el) => {
                 const giftIsEnded = el.limit - el.used <= 0;
                 const card = document.createElement('div');
-                card.className = `card ${el.status.toLowerCase()}`;
-                card.onclick = () => openModal(el);
+                const card2 = document.createElement('div');
+                card2.className = `card ${el.status.toLowerCase()}`;
+                card2.onclick = () => openModal(el);
+                if(el.releaseDate){
+                    card2.style.filter = "brightness(0.5)";
+                    card2.onclick = () => {};
+                    const p = document.createElement("p");
+                    let secondTimout = new Date(el.releaseDate) - new Date();
+                    let seconds = Math.floor(secondTimout / 1000);
+                    let minutes = Math.floor(seconds / 60);
+                    let hours = Math.floor(minutes / 60);
+                    let days = Math.floor(hours / 24);
+                    const spanDay = document.createElement("span");
+                    const spanHour = document.createElement("span");
+                    const spanMinutes = document.createElement("span");
+                    seconds %= 60;
+                    hours %= 24;
+                    minutes %= 60;
+                    spanDay.innerText = days;
+                    spanHour.innerText = hours;
+                    spanMinutes.innerText = minutes;
+                    const dayText = document.createElement("span");
+                    const hourText = document.createElement("span");
+                    const minutesText = document.createElement("span");
+                    dayText.innerText = "D ";
+                    hourText.innerText = "H ";
+                    minutesText.innerText = "M ";
+                    p.appendChild(spanDay);
+                    p.appendChild(dayText);
+                    p.appendChild(spanHour);
+                    p.appendChild(hourText);
+                    p.appendChild(spanMinutes);
+                    p.appendChild(minutesText);
+                    p.className = "countDownCardPtext";
+                    card.appendChild(p);
+                }
                 const badge = document.createElement('div');
                 badge.className = `rarity-badge right ${el.status.toLowerCase()}`;
                 badge.textContent = el.status;
-                card.appendChild(badge);
+                card2.appendChild(badge);
 
                 if(el.img.endsWith(".json")){
                     const canvas = document.createElement('canvas');
@@ -333,13 +367,13 @@ if(!(userUIdata.error)){
                         src: el.img,
                     });
                     canvas.style.width = "285px";
-                    card.appendChild(canvas);
+                    card2.appendChild(canvas);
                 }else{
                     const characterImg = document.createElement('img');
                     characterImg.className = 'character';
                     characterImg.src = el.img;
                     characterImg.alt = 'Character';
-                    card.appendChild(characterImg);
+                    card2.appendChild(characterImg);
                 }
 
                 const price = document.createElement('div');
@@ -352,7 +386,8 @@ if(!(userUIdata.error)){
                 price.appendChild(starImg);
 
                 price.appendChild(document.createTextNode(el.price));
-                card.appendChild(price);
+                card2.appendChild(price);
+                card.appendChild(card2);
                 if(giftIsEnded){
                     giftParentExpired.appendChild(card);
                     expiredGiftH2.classList.remove("hide");

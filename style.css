@@ -71,7 +71,7 @@ h2 {
 }
 
 
-.card {
+.card{
     width: 160px;
     height: 180px;
     background: radial-gradient(50% 50% at 50% 50%, #6f6f6f 0%, #282829 100%), #282829;
@@ -928,4 +928,16 @@ input::placeholder {
 }
 .hideVis{
     visibility: hidden;
+}
+.countDownCardPtext{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 60;
+    font-size: 24px;
+    width: 100%;
+    text-align: center;
+}
+#giftParent > div{
+    position: relative;
 }
