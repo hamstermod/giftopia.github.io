@@ -14,7 +14,6 @@ const mainPageButton = document.getElementById("mainPageButton");
 const marketPageButton = document.getElementById("marketPageButton");
 const profilePageButton = document.getElementById("profilePageButton");
 
-
 const profileGiftCloseBtn = document.getElementById("profileGiftCloseBtn");
 const okBtn = document.getElementById("okBtn");
 const profileGiftModal = document.getElementById("profileGiftModal");
