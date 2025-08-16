@@ -940,4 +940,5 @@ input::placeholder {
 }
 #giftParent > div{
     position: relative;
+    width: 160px;
 }
