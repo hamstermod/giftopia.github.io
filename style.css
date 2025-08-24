@@ -294,7 +294,7 @@ h2 {
     padding: 20px 0;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
-    z-index: 10;
+    z-index: 70;
 }
 
 .footer-item {
@@ -365,7 +365,7 @@ h2 {
 }
 
 #profile {
-    /*background-color: #1e1e1e;*/
+    background-color: #1c1c1e;
     border-radius: 12px;
     padding: 20px;
     /*margin-top: -100px;*/
@@ -373,6 +373,7 @@ h2 {
     top: 0;
     left: 0;
     width: 100%;
+    z-index: 61;
 }
 .profile-container{
     margin-top: 50px;
@@ -394,6 +395,7 @@ h2 {
 #userId{
     margin-bottom: 20px;
     color: darkgray;
+    margin-right: 5px;
 }
 
 .stats {
@@ -410,7 +412,7 @@ h2 {
 .count {
     display: block;
     font-size: 20px;
-    margin-top: 4px;
+    /*margin-top: 4px;*/
 }
 
 .label {
@@ -445,7 +447,7 @@ h2 {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 20;
+    z-index: 100;
     animation: fadeIn 0.4s ease;
 }
 
@@ -459,7 +461,7 @@ h2 {
     animation: slideUp 0.4s ease;
 }
 
-.profileGiftCloseBtn {
+.menu-container {
     position: absolute;
     top: 10px;
     right: 14px;
@@ -584,9 +586,10 @@ h2 {
     white-space: nowrap;
     text-overflow: ellipsis;
     display: inline-block;
+    text-decoration-line: underline;
 }
 #username{
-    /*max-width: 200px;*/
+    max-width: 200px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -694,7 +697,7 @@ h2 {
     :root{--header-h:220px}
 }
 #upgradeOverlay{
-    z-index: 30;
+    z-index: 101;
 }
 #divGiftForTransfer canvas{
     width: 100%;
@@ -707,13 +710,13 @@ h2 {
     left: 10px;
 }
 
-.transferBlur {
+.transferBlur, #ratingBlurEffect {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(18, 18, 41, 0.75);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    z-index: 40;
+    z-index: 101;
 }
 .transferModal {
     background: #252547;
@@ -727,7 +730,7 @@ h2 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 41;
+    z-index: 105;
 }
 .transferModal img {
     width: 100px;
@@ -941,4 +944,280 @@ input::placeholder {
 #giftParent > div{
     position: relative;
     width: 160px;
+}
+
+
+
+
+
+/*.menu-container {*/
+/*    position: relative;*/
+/*    display: inline-block;*/
+/*}*/
+
+.menu-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #2c2c2c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.dots {
+    width: 4px;
+    height: 4px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 8px white, 0 -8px white;
+}
+
+.menu {
+    width: 140px;
+    position: absolute;
+    right: 0;
+    top: 33px;
+    margin-top: 10px;
+    background: #1e1e1e;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.5);
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 14px;
+}
+
+.menu-item:hover {
+    background: #333;
+}
+
+.menu-item svg {
+    width: 20px;
+    height: 20px;
+}
+#levelUser{
+    width: 30px;
+    height: 30px;
+    background-image: url("https://raw.githubusercontent.com/hamstermod/giftopiaImages/refs/heads/main/levelsImages/level1.png");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: inline-block;
+}
+.align{
+    align-items: center;
+}
+#closeProfileAnotherUserView{
+    position: absolute;
+    left: 20px;
+    top: 20px;
+}
+
+
+
+
+
+.rating_card {
+    background: #1a1a1a;
+    color: #fff;
+    width: 340px;
+    border-radius: 16px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+    position: fixed;
+    z-index: 102;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.rating_header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 14px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.rating_progress-section {
+    padding: 20px;
+    /*text-align: center;*/
+    position: relative;
+}
+
+.rating_progress-label {
+    width: max-content;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #1e1e1e;
+    border: 1px solid #2a2a2a;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #5ab8ff;
+    position: absolute;
+    margin-bottom: 10px;
+    transform: translateX(-50%);
+    left: 0;
+    transition: 0.5s;
+}
+.animateRatingProgressLabel{
+    animation-name: animateRatingProgressLabel;
+    animation-delay: 0.5s;
+    animation-duration: 0.5s;
+}
+@keyframes animateRatingProgressLabel {
+    0%{
+        transform: translateX(-50%) rotate(0deg);
+    }
+    60%{
+        transform: translateX(-50%) rotate(10deg);
+    }
+    100%{
+        transform: translateX(-50%) rotate(0deg);
+    }
+}
+
+.rating_progress-label::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #1e1e1e;
+}
+
+.rating_progress-container {
+    margin-top: 8px;
+    position: relative;
+}
+
+.rating_progress-bar {
+    background: #2a2a2a;
+    border-radius: 4px;
+    height: 20px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 6px;
+    box-sizing: border-box;
+    font-size: 12px;
+    font-weight: bold;
+    color: #ccc;
+}
+
+.rating_progress-fill {
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    height: 100%;
+    width: 0;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.rating_level-text {
+    z-index: 2;
+    position: relative;
+    color: #fff;
+}
+
+.rating_description {
+    font-size: 13px;
+    color: #aaa;
+    text-align: center;
+    margin: 16px;
+}
+
+.rating_item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 12px 16px;
+}
+
+.rating_item-icon {
+    width: 32px;
+    height: 32px;
+    /*background: #2c2c2c;*/
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rating_item-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: #5ab8ff;
+}
+
+.rating_item-text {
+    font-size: 14px;
+    color: #ddd;
+    line-height: 1.4;
+}
+
+.rating_pill {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 6px;
+    margin-right: 4px;
+}
+
+.rating_plus {
+    background: #0044ff33;
+    color: #4aa8ff;
+}
+
+.rating_minus {
+    background: #ff000033;
+    color: #ff6666;
+}
+
+.rating_footer {
+    border-top: 1px solid #2a2a2a;
+    padding: 12px;
+    display: flex;
+    justify-content: center;
+}
+
+.rating_btn {
+    background: #3399ff;
+    color: #fff;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+
+}
+
+.rating_btn:hover {
+    background: #2680d9;
 }

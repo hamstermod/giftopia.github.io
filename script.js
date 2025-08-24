@@ -47,6 +47,9 @@ const giftsUsersItemName = document.getElementById("giftsUsersItemName");
 const usersGiftNotification = document.getElementById("usersGiftNotification");
 const userId = document.getElementById("userId");
 const serverUrl = "http://localhost:3000/" && "https://servergiftopia-production.up.railway.app/";
+const closeProfileAnotherUserView = document.getElementById("closeProfileAnotherUserView");
+const shareProfile = document.getElementById("shareProfile");
+const youHaveNotGiftText = document.getElementById("youHaveNotGiftText");
 const noGift = document.getElementById("noGift");
 let currentElementModal = {};
 let transferDataId = 0;
@@ -93,15 +96,6 @@ if(isMaintance){
     document.getElementById("maintancePage").classList.remove("hide");
 }
 
-userId.innerText = userUIdata.user.id;
-userId.onclick = async () => {
-    try {
-        await navigator.clipboard.writeText(userUIdata.user.id);
-        showToast("Successfully copied!", "success");
-    } catch (err) {
-        showToast("Error copied!", "error");
-    }
-}
 let userGiftsInterval;
 async function doFetch(path, method, bodyReq = {}, init = false){
     try{
@@ -128,7 +122,7 @@ async function doFetch(path, method, bodyReq = {}, init = false){
         return {error: true};
     }
 }
-async function renderUserGifts(){
+async function renderUserGifts(openModalGift){
     let i = 0;
     let dataArr = await doFetch("getUsersGifts", "GET");
     dataArr = dataArr.data || [];
@@ -152,6 +146,9 @@ async function renderUserGifts(){
         }
         giftsUsersUsername.innerText = targ.username || targ.firstname;
         giftsUsersItemName.innerText = targ.name;
+        giftsUsersItemName.onclick = () => {
+            openModalGift(targ, true, true);
+        }
         i++;
         userGiftsInterval = setInterval(() => {
 
@@ -180,17 +177,41 @@ async function renderUserGifts(){
         }, 5000)
     }
 }
-renderUserGifts();
+
 if(!(userUIdata.error)){
-    window.onload = () => {
+    window.onload = async () => {
 
 
         setTimeout(() => {
             loadingPage.classList.add("hide");
+
         }, 2000)
+        // console.log(userUIdata)
+        // openModalProfile({})
+
+        // console.log(dataGet)
+
         const {photo_url, username, firstname} = userUIdata.user;
-        userImg.src = photo_url;
-        usernameElm.innerText = username || firstname;
+
+        function renderProfileInfo(isNotMyProfile, data){
+            userId.innerText = isNotMyProfile ? data.id : userUIdata.user.id;
+            userId.onclick = async () => {
+                try {
+                    await navigator.clipboard.writeText(`https://t.me/Giftopia_bot/Giftopia?startapp=profile_${(isNotMyProfile ? data.id : userUIdata.user.id)}`);
+                    showToast("Successfully copied!", "success");
+                } catch (err) {
+                    showToast("Error copied!", "error");
+                }
+            }
+            shareProfile.onclick = () => {
+                const textToShare = encodeURIComponent(`👤 Check out this awesome Giftopia profile!\nClick here to view it:  https://t.me/Giftopia_bot/Giftopia?startapp=profile_${(isNotMyProfile ? data.id : userUIdata.user.id)}`);
+                const shareLink = `https://t.me/share/url?url=&text=${textToShare}`;
+                Telegram.WebApp.openTelegramLink(shareLink);
+            }
+            userImg.src = isNotMyProfile ? (data.userImg || "/images/giftopiaDefaultImage.png") : photo_url;
+            usernameElm.innerText = isNotMyProfile ? (data.username || data.firstname) : (username || firstname);
+        }
+        renderProfileInfo();
 
         const formatter = new Intl.NumberFormat('en', {
             notation: 'compact',
@@ -214,9 +235,11 @@ if(!(userUIdata.error)){
             profilePageButton.classList.remove("active");
 
             if(page === "main"){
+                renderGift();
                 main.classList.remove("hide");
                 mainPageButton.classList.add("active");
                 usersGiftNotification.classList.remove("hideVis");
+
                 return;
             }
             usersGiftNotification.classList.add("hideVis");
@@ -225,6 +248,10 @@ if(!(userUIdata.error)){
                 market.classList.remove("hide");
                 marketPageButton.classList.add("active");
                 return;
+            }
+            if(page === "profile"){
+                setUserXP();
+                renderProfileGifts();
             }
             profile.classList.remove("hide");
             profilePageButton.classList.add("active");
@@ -400,12 +427,12 @@ if(!(userUIdata.error)){
         }
         renderGift();
         mainPageButton.onclick = () => {
-            renderGift();
+
             openPage('main');
         }
         marketPageButton.onclick = () => openPage('market');
         profilePageButton.onclick = () => {
-            renderProfileGifts();
+
             openPage('profile');
 
         }
@@ -415,12 +442,41 @@ if(!(userUIdata.error)){
             profileGiftModal.classList.add('hide');
         }
         profileGiftCloseBtn.onclick = closeProfileGift;
-        okBtn.onclick = closeProfileGift;
+        okBtn.onclick = () => {
+            closeProfileGift();
+        };
+        const shareGiftButton = document.getElementById('shareGiftButton');
+        const menu = document.getElementById('menu');
+        const copyLinkGift = document.getElementById('copyLinkGift');
+        shareGiftButton.onclick = () => {
+            const textToShare = encodeURIComponent(`🎁 Check out this awesome Giftopia gift!\nClick here to view it: https://t.me/Giftopia_bot/Giftopia?startapp=gift_${currentElementModal.giftId}`);
+            menu.classList.add("hide");
+            const shareLink = `https://t.me/share/url?url=&text=${textToShare}`;
+            Telegram.WebApp.openTelegramLink(shareLink);
+        }
+        copyLinkGift.onclick = () => {
+            menu.classList.add("hide");
+            navigator.clipboard.writeText(`https://t.me/Giftopia_bot/Giftopia?startapp=gift_${currentElementModal.giftId}`)
+                .then(() => {
+                    showToast("✅ Gift link copied to clipboard!", "success");
+                })
+                .catch(err => {
+                    showToast("❌ Failed to copy gift link.", "error");
+                });
+
+        }
         let prevImg2 = "";
-        function openModalProfile(el){
+        const profileButtonsUpgrade = document.getElementById("profileButtonsUpgrade");
+
+        function openModalProfile(el, hideGiftSetting = false, canOpenGiftOwner = true, userInfo = {}){
             currentElementModal = el;
             profileGiftModal.classList.remove('hide');
             mintedNftModalNumber.classList.add('hide');
+            if(hideGiftSetting){
+                profileButtonsUpgrade.classList.add('hide');
+            } else{
+                profileButtonsUpgrade.classList.remove('hide');
+            }
             if(prevImg2 !== el.img){
                 if(el.img.endsWith(".json")){
                     new DotLottie({
@@ -458,27 +514,95 @@ if(!(userUIdata.error)){
 
             profileGiftName.innerText = el.name;
             giftBadgeModal.innerText = el.status;
-            giftProfileCard.className = `profileGiftCard  modal-content ${el.status.toLowerCase()}`;
+            giftProfileCard.className = `profileGiftCard  modal-content ${el.status?.toLowerCase()}`;
 
             profileGiftPrice.innerText = el.price;
             profileGiftStatus.innerText = el.status;
             profileGiftAvilable.innerText = `${formatter.format(Math.max(el.limit - el.used, 0))} of ${formatter.format(el.limit)} left`;
-            profileUserName.innerText = username || firstname;
-        }
+            console.log(el)
+            profileUserName.innerText = el.username || el.firstname || userInfo.username || userInfo.firstname || username || firstname;
+            if(canOpenGiftOwner && el.userId && el.userId != userUIdata.user.id){
+                profileUserName.onclick = () => {
+                    closeProfileGift();
+                    renderProfileGifts(true, el.userId);
 
-        async function renderProfileGifts(){
-            const gifts = await doFetch("getUserGifts", "POST", {}, true);
+                }
+            } else{
+                profileUserName.onclick = () => {};
+            }
+        }
+        renderUserGifts(openModalProfile);
+        const menuButton = document.getElementById('menuButton');
+
+        function toggleMenu() {
+            menu.classList.toggle('hide');
+        }
+        menuButton.onclick = toggleMenu;
+        closeProfileAnotherUserView.onclick = () => {
+            profile.classList.add("hide");
+            main.classList.remove("hide")
+        }
+        window.addEventListener("click", function(e) {
+            if (!e.target.closest(".menu-container")) {
+                menu.classList.add("hide")
+            }
+        });
+        async function getInfoGiftOrProfile(){
+
+            if(userUIdata.start_param){
+                const startParam = userUIdata.start_param;
+                if(startParam.startsWith("gift")){
+                    const dataGet = await doFetch("getInfoAbout", "POST", {
+                        info: "gift",
+                        id: startParam.split("gift_")[1]
+                    })
+                    if(dataGet.ok && dataGet.data){
+                        openModalProfile(dataGet.data, true)
+                    } else{
+
+                    }
+                }
+                if(startParam.startsWith("profile")){
+                    renderProfileGifts(true, startParam.split("profile_")[1])
+                }
+                console.log("start with " +  userUIdata.start_param)
+            }
+        }
+        getInfoGiftOrProfile();
+        async function renderProfileGifts(findingUserProfile, profileId){
+
+            let userInfoForView = findingUserProfile ?  await doFetch("getUserViewerInfo", "POST", {id: profileId}) : {};
+            if(!findingUserProfile){
+                renderProfileInfo();
+                closeProfileAnotherUserView.classList.add("hide");
+            } else{
+                if(userInfoForView.error){
+                    return;
+                }
+                setUserXP(profileId);
+                profile.classList.remove("hide");
+                renderProfileInfo(true, userInfoForView)
+                closeProfileAnotherUserView.classList.remove("hide");
+                main.classList.add("hide")
+            }
+
+            const gifts = !findingUserProfile ? await doFetch("getUserGifts", "POST", {}, true) : [];
             profileGifts.innerHTML = "";
-            boughtCount.innerText = gifts.length;
-            if(gifts.length === 0){
+            boughtCount.innerText = findingUserProfile ? userInfoForView.gifts.length : gifts.length;
+            if(findingUserProfile ? (userInfoForView.gifts.length === 0) : (gifts.length === 0)){
                 noGift.classList.remove("hide");
+                if(findingUserProfile){
+                    youHaveNotGiftText.classList.add("hide")
+                } else{
+                    youHaveNotGiftText.classList.remove("hide")
+                }
             } else{
                 noGift.classList.add("hide");
             }
-            gifts.map((el) => {
+            (findingUserProfile ? userInfoForView.gifts :  gifts).map((el) => {
                 const card = document.createElement('div');
                 card.className = `card ${el.status.toLowerCase()}`;
-                card.onclick = () => openModalProfile(el);
+                card.onclick = () => openModalProfile(el, findingUserProfile, false, userInfoForView);
                 const badge = document.createElement('div');
                 badge.className = `rarity-badge right ${el.status.toLowerCase()}`;
                 badge.textContent = el.status;
@@ -519,7 +643,7 @@ if(!(userUIdata.error)){
 
             })
         }
-        renderProfileGifts();
+        // renderProfileGifts();
 
         new DotLottie({
             autoplay: true,
@@ -620,6 +744,7 @@ if(!(userUIdata.error)){
                         partyEffect();
                         setTimeout(() => {
                             renderProfileGifts();
+                            setUserXP();
                         }, 1000)
                     } else{
                         showToast("Payment Error", "error");
@@ -736,7 +861,80 @@ if(!(userUIdata.error)){
             }
         }
         transferGiftButton.onclick = openModalTransfer;
+        const rating_card = document.getElementById('rating_card');
+        const ratingBlurEffect = document.getElementById('ratingBlurEffect');
+        const rating_btn = document.getElementById('rating_btn');
+        const ratingTextProgress = document.getElementById('ratingTextProgress');
+        const fillProgress = document.getElementById('fillProgress');
+        const textProcentGo = document.getElementById('textProcentGo');
+        const getWidthProgressElm = document.getElementById('getWidthProgressElm');
+        const levelUser = document.getElementById('levelUser');
+        const maxLevel = 100;
+        function openModalRating(min, max, xp, levelUser){
+            rating_card.classList.remove('hide');
+            ratingBlurEffect.classList.remove('hide');
 
+            let procent = 100 * (xp - min) / (max - min);
+            if(levelUser >= maxLevel){
+                nextLevelText.innerText = "";
+                procent = 100;
+                ratingTextProgress.innerText = xp;
+            }
+            else{
+                nextLevelText.innerText = `Level ${levelUser+1}`;
+                ratingTextProgress.innerText = `${xp} / ${max}`;
+            }
+            const maxWidth = getWidthProgressElm.offsetWidth;
+            const pxWidth = maxWidth * procent / 100;
+            const pxWidthProcentGo = textProcentGo.offsetWidth;
+            textProcentGo.classList.add("animateRatingProgressLabel");
+            currentLevelText.innerText = `Level ${levelUser}`;
+
+            if(pxWidth < (pxWidthProcentGo / 2)){
+                fillProgress.style.width = `${pxWidthProcentGo/2}px`
+                textProcentGo.style.left = `${pxWidthProcentGo/2}px`
+                return;
+            }
+            if(pxWidth + (pxWidthProcentGo / 2) > maxWidth){
+                fillProgress.style.width = `${maxWidth - pxWidthProcentGo/2}px`
+                textProcentGo.style.left = `${maxWidth - pxWidthProcentGo/2}px`
+                return;
+            }
+            // console.dir(textProcentGo.offsetWidth);
+            // console.log(getWidthProgressElm.offsetWidth)
+            if (procent < 0) procent = 0;
+            if (procent > 100) procent = 100;
+            fillProgress.style.width = `${procent}%`
+            textProcentGo.style.left = `${procent}%`
+        }
+        async function setUserXP(id) {
+          try{
+              id = id || userUIdata.user.id;
+              const data = await doFetch("getUserXP", "POST", {id: id} );
+              if(data.error){
+                  return;
+              }
+              const {previousLevelXp, nextLevelXp, xp, level} = data;
+              levelUser.style.backgroundImage = `url("https://raw.githubusercontent.com/hamstermod/giftopiaImages/refs/heads/main/levelsImages/level${level}.png")`
+              levelUser.onclick = () => {
+                  openModalRating(previousLevelXp, nextLevelXp, +xp, level);
+              }
+          }
+          catch(e){
+              console.log(e);
+              showToast("SERVER ERROR", "error");
+          }
+        }
+        setUserXP();
+        function closeModalRating(){
+            rating_card.classList.add('hide');
+            ratingBlurEffect.classList.add('hide');
+            fillProgress.style.width = "0px";
+            textProcentGo.style.left = "0px";
+            textProcentGo.classList.remove("animateRatingProgressLabel");
+        }
+        ratingBlurEffect.onclick = closeModalRating;
+        rating_btn.onclick = closeModalRating;
     }
 }
 
