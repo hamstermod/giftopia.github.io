@@ -181,10 +181,31 @@ async function renderUserGifts(openModalGift){
 if(!(userUIdata.error)){
     window.onload = async () => {
 
+        async function getInfoGiftOrProfile(){
+
+            if(userUIdata.start_param){
+                const startParam = userUIdata.start_param;
+                if(startParam.startsWith("gift")){
+                    const dataGet = await doFetch("getInfoAbout", "POST", {
+                        info: "gift",
+                        id: startParam.split("gift_")[1]
+                    })
+                    if(dataGet.ok && dataGet.data){
+                        openModalProfile(dataGet.data, true)
+                    } else{
+
+                    }
+                }
+                if(startParam.startsWith("profile")){
+                    renderProfileGifts(true, startParam.split("profile_")[1])
+                }
+                console.log("start with " +  userUIdata.start_param)
+            }
+        }
 
         setTimeout(() => {
             loadingPage.classList.add("hide");
-
+            getInfoGiftOrProfile();
         }, 2000)
         // console.log(userUIdata)
         // openModalProfile({})
@@ -208,7 +229,7 @@ if(!(userUIdata.error)){
                 const shareLink = `https://t.me/share/url?url=&text=${textToShare}`;
                 Telegram.WebApp.openTelegramLink(shareLink);
             }
-            userImg.src = isNotMyProfile ? (data.userImg || "/images/giftopiaDefaultImage.png") : photo_url;
+            userImg.src = isNotMyProfile ? (data.userImg || "https://raw.githubusercontent.com/hamstermod/giftopia.github.io/refs/heads/main/images/giftopiaDefaultImage.png") : photo_url;
             usernameElm.innerText = isNotMyProfile ? (data.username || data.firstname) : (username || firstname);
         }
         renderProfileInfo();
@@ -547,28 +568,7 @@ if(!(userUIdata.error)){
                 menu.classList.add("hide")
             }
         });
-        async function getInfoGiftOrProfile(){
 
-            if(userUIdata.start_param){
-                const startParam = userUIdata.start_param;
-                if(startParam.startsWith("gift")){
-                    const dataGet = await doFetch("getInfoAbout", "POST", {
-                        info: "gift",
-                        id: startParam.split("gift_")[1]
-                    })
-                    if(dataGet.ok && dataGet.data){
-                        openModalProfile(dataGet.data, true)
-                    } else{
-
-                    }
-                }
-                if(startParam.startsWith("profile")){
-                    renderProfileGifts(true, startParam.split("profile_")[1])
-                }
-                console.log("start with " +  userUIdata.start_param)
-            }
-        }
-        getInfoGiftOrProfile();
         async function renderProfileGifts(findingUserProfile, profileId){
 
             let userInfoForView = findingUserProfile ?  await doFetch("getUserViewerInfo", "POST", {id: profileId}) : {};
