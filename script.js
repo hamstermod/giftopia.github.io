@@ -51,8 +51,10 @@ const closeProfileAnotherUserView = document.getElementById("closeProfileAnother
 const shareProfile = document.getElementById("shareProfile");
 const youHaveNotGiftText = document.getElementById("youHaveNotGiftText");
 const noGift = document.getElementById("noGift");
+const upgrade_modal_header = document.querySelector('#upgrade_modal_header');
 let currentElementModal = {};
 let transferDataId = 0;
+const blackModelsId = [3]
 function showToast(message, type) {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
@@ -181,10 +183,31 @@ async function renderUserGifts(openModalGift){
 if(!(userUIdata.error)){
     window.onload = async () => {
 
+        async function getInfoGiftOrProfile(){
+
+            if(userUIdata.start_param){
+                const startParam = userUIdata.start_param;
+                if(startParam.startsWith("gift")){
+                    const dataGet = await doFetch("getInfoAbout", "POST", {
+                        info: "gift",
+                        id: startParam.split("gift_")[1]
+                    })
+                    if(dataGet.ok && dataGet.data){
+                        openModalProfile(dataGet.data, true)
+                    } else{
+
+                    }
+                }
+                if(startParam.startsWith("profile")){
+                    renderProfileGifts(true, startParam.split("profile_")[1])
+                }
+                console.log("start with " +  userUIdata.start_param)
+            }
+        }
 
         setTimeout(() => {
             loadingPage.classList.add("hide");
-
+            getInfoGiftOrProfile();
         }, 2000)
         // console.log(userUIdata)
         // openModalProfile({})
@@ -208,7 +231,7 @@ if(!(userUIdata.error)){
                 const shareLink = `https://t.me/share/url?url=&text=${textToShare}`;
                 Telegram.WebApp.openTelegramLink(shareLink);
             }
-            userImg.src = isNotMyProfile ? (data.userImg || "/images/giftopiaDefaultImage.png") : photo_url;
+            userImg.src = isNotMyProfile ? (data.userImg || "https://raw.githubusercontent.com/hamstermod/giftopia.github.io/refs/heads/main/images/giftopiaDefaultImage.png") : photo_url;
             usernameElm.innerText = isNotMyProfile ? (data.username || data.firstname) : (username || firstname);
         }
         renderProfileInfo();
@@ -494,6 +517,7 @@ if(!(userUIdata.error)){
                 }
             }
 
+
             prevImg2 = el.img;
             if(el.minted){
                 mintedNftModalNumber.innerText = '#' + el.mintedNftNumber;
@@ -511,10 +535,9 @@ if(!(userUIdata.error)){
                     mintDivEl.classList.add('disable');
                 }
             }
-
             profileGiftName.innerText = el.name;
             giftBadgeModal.innerText = el.status;
-            giftProfileCard.className = `profileGiftCard  modal-content ${el.status?.toLowerCase()}`;
+            giftProfileCard.className = `profileGiftCard  modal-content ${el.status?.toLowerCase()} ${el.minted ? (blackModelsId.includes(currentElementModal.idGift) ? "blackBG" : "") : ""}`;
 
             profileGiftPrice.innerText = el.price;
             profileGiftStatus.innerText = el.status;
@@ -547,28 +570,7 @@ if(!(userUIdata.error)){
                 menu.classList.add("hide")
             }
         });
-        async function getInfoGiftOrProfile(){
 
-            if(userUIdata.start_param){
-                const startParam = userUIdata.start_param;
-                if(startParam.startsWith("gift")){
-                    const dataGet = await doFetch("getInfoAbout", "POST", {
-                        info: "gift",
-                        id: startParam.split("gift_")[1]
-                    })
-                    if(dataGet.ok && dataGet.data){
-                        openModalProfile(dataGet.data, true)
-                    } else{
-
-                    }
-                }
-                if(startParam.startsWith("profile")){
-                    renderProfileGifts(true, startParam.split("profile_")[1])
-                }
-                console.log("start with " +  userUIdata.start_param)
-            }
-        }
-        getInfoGiftOrProfile();
         async function renderProfileGifts(findingUserProfile, profileId){
 
             let userInfoForView = findingUserProfile ?  await doFetch("getUserViewerInfo", "POST", {id: profileId}) : {};
@@ -600,8 +602,9 @@ if(!(userUIdata.error)){
                 noGift.classList.add("hide");
             }
             (findingUserProfile ? userInfoForView.gifts :  gifts).map((el) => {
+                console.log(el)
                 const card = document.createElement('div');
-                card.className = `card ${el.status.toLowerCase()}`;
+                card.className = `card ${el.status.toLowerCase()} ${el.minted ? (blackModelsId.includes(el.idGift) ? "blackBG" : "") : ""}`;
                 card.onclick = () => openModalProfile(el, findingUserProfile, false, userInfoForView);
                 const badge = document.createElement('div');
                 badge.className = `rarity-badge right ${el.status.toLowerCase()}`;
@@ -670,18 +673,20 @@ if(!(userUIdata.error)){
         let intervalUpgrade;
 
         async function openUpgradeModal(){
+
             let requestImages = await doFetch("getGiftMintData", "POST", {id: currentElementModal.idGift});
             requestImages = requestImages.map((e) => e.imageUrl);
             const images = [currentElementModal.img, ...requestImages]
             let html = document.createElement("div");
             let count = 0;
             upgradeNftImages.innerHTML = '';
+            if(blackModelsId.includes(currentElementModal.idGift)){
+                upgrade_modal_header.classList.add("blackBG");
+            } else{
+                upgrade_modal_header.classList.remove("blackBG");
+            }
             images.map((el) => {
-                if(el.endsWith("png")) {
-                    const img = document.createElement("img");
-                    img.src = el;
-                    upgradeNftImages.appendChild(img);
-                } else{
+                if(el.endsWith("json")) {
                     const canvas = document.createElement("canvas");
                     new DotLottie({
                         autoplay: true,
@@ -690,6 +695,10 @@ if(!(userUIdata.error)){
                         src: el,
                     });
                     upgradeNftImages.appendChild(canvas);
+                } else{
+                    const img = document.createElement("img");
+                    img.src = el;
+                    upgradeNftImages.appendChild(img);
                 }
             })
 
@@ -847,9 +856,7 @@ if(!(userUIdata.error)){
             blur.classList.remove('hide');
             divGiftForTransfer.innerHTML = "";
             transferGiftName.innerText = currentElementModal.name;
-            if(currentElementModal.img.endsWith("png")){
-                divGiftForTransfer.innerHTML = `<img src="${currentElementModal.img}" alt="${currentElementModal.name}"/>`;
-            } else{
+            if(currentElementModal.img.endsWith("json")){
                 const canvas = document.createElement("canvas");
                 new DotLottie({
                     autoplay: true,
@@ -858,6 +865,9 @@ if(!(userUIdata.error)){
                     src: currentElementModal.img,
                 });
                 divGiftForTransfer.appendChild(canvas);
+
+            } else{
+                divGiftForTransfer.innerHTML = `<img src="${currentElementModal.img}" alt="${currentElementModal.name}"/>`;
             }
         }
         transferGiftButton.onclick = openModalTransfer;

@@ -719,7 +719,7 @@ h2 {
     z-index: 101;
 }
 .transferModal {
-    background: #252547;
+    background: black;
     border-radius: 20px;
     width: 90%;
     max-width: 300px;
@@ -1220,4 +1220,7 @@ input::placeholder {
 
 .rating_btn:hover {
     background: #2680d9;
+}
+.blackBG{
+    background: black !important;
 }
