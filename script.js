@@ -601,6 +601,9 @@ if(!(userUIdata.error)){
             } else{
                 noGift.classList.add("hide");
             }
+            if(findingUserProfile){
+                userInfoForView.gifts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            }
             (findingUserProfile ? userInfoForView.gifts :  gifts).map((el) => {
                 console.log(el)
                 const card = document.createElement('div');
