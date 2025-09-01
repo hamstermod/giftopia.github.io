@@ -1,6 +1,7 @@
 import { DotLottie } from 'https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web/+esm';
 const giftParent = document.getElementById("giftParent");
 const giftImgModal = document.getElementById("giftImgModal");
+const giftVideoModal = document.getElementById("giftVideoModal");
 const nftNameModal = document.getElementById("nftNameModal");
 const giftBadgeModal = document.getElementById("giftBadgeModal");
 const modalContent = document.getElementById("modalContent");
@@ -20,7 +21,9 @@ const okBtn = document.getElementById("okBtn");
 const profileGiftModal = document.getElementById("profileGiftModal");
 const profileGifts = document.getElementById("profileGifts");
 const profileGiftImg = document.getElementById("profileGiftImg");
+const profileGiftVideo = document.getElementById("profileGiftVideo");
 const profileGiftName = document.getElementById("profileGiftName");
+const emojiVideo = document.getElementById("emojiVideo");
 const giftProfileCard = document.getElementById("giftProfileCard");
 const profileGiftStatus = document.getElementById("profileGiftStatus");
 const profileGiftPrice = document.getElementById("profileGiftPrice");
@@ -97,7 +100,28 @@ let isMaintance = false;
 if(isMaintance){
     document.getElementById("maintancePage").classList.remove("hide");
 }
+function settingVideo(videoTag){
 
+    videoTag.autoplay = true;
+    videoTag.loop = true;
+    videoTag.muted = true;
+    videoTag.playsInline = true;
+    videoTag.preload = 'auto';
+    videoTag.controls = false;
+    videoTag.setAttribute("controlsList", "nodownload noplaybackrate noremoteplayback nofullscreen");
+
+    videoTag.style.pointerEvents = "none";
+    videoTag.oncontextmenu = e => e.preventDefault();
+
+    videoTag.addEventListener("pause", () => {
+        setTimeout(() => characterVideo.play().catch(() => {}), 0);
+    });
+
+    videoTag.addEventListener("loadeddata", () => {
+        videoTag.play().catch(() => {});
+    });
+}
+settingVideo(emojiVideo)
 let userGiftsInterval;
 async function doFetch(path, method, bodyReq = {}, init = false){
     try{
@@ -142,9 +166,20 @@ async function renderUserGifts(openModalGift){
             emojiCanvas.classList.remove("hide");
             emojiImg.classList.add("hide");
         } else{
-            emojiImg.src = targ.img;
+
+            if(targ.img.endsWith(".webm")){
+                emojiVideo.src = targ.img;
+
+                emojiImg.classList.add("hide");
+                emojiVideo.classList.remove("hide")
+            }
+            else{
+                emojiImg.src = targ.img;
+                emojiImg.classList.remove("hide");
+                emojiVideo.classList.add("hide");
+            }
             emojiCanvas.classList.add("hide");
-            emojiImg.classList.remove("hide");
+
         }
         giftsUsersUsername.innerText = targ.username || targ.firstname;
         giftsUsersItemName.innerText = targ.name;
@@ -154,7 +189,7 @@ async function renderUserGifts(openModalGift){
         i++;
         userGiftsInterval = setInterval(() => {
 
-             targ = dataArr[i];
+            targ = dataArr[i];
             if(targ.img.endsWith("json")){
                 new DotLottie({
                     autoplay: true,
@@ -165,9 +200,18 @@ async function renderUserGifts(openModalGift){
                 emojiCanvas.classList.remove("hide");
                 emojiImg.classList.add("hide");
             } else{
-                emojiImg.src = targ.img;
+                if(targ.img.endsWith(".webm")){
+                    emojiVideo.src = targ.img;
+
+                    emojiImg.classList.add("hide");
+                    emojiVideo.classList.remove("hide")
+                }
+                else{
+                    emojiImg.src = targ.img;
+                    emojiImg.classList.remove("hide");
+                    emojiVideo.classList.add("hide");
+                }
                 emojiCanvas.classList.add("hide");
-                emojiImg.classList.remove("hide");
             }
             giftsUsersUsername.innerText = targ.username || targ.firstname;
             giftsUsersItemName.innerText = targ.name;
@@ -318,10 +362,21 @@ if(!(userUIdata.error)){
                     });
                     giftCanvasModal.classList.remove("hide");
                     giftImgModal.classList.add("hide");
+                    giftVideoModal.classList.add("hide");
                 }else{
-                    giftImgModal.src = el.img;
+                    if(el.img.endsWith(".webm")){
+                        giftVideoModal.src = el.img;
+                        settingVideo(giftVideoModal)
+                        giftImgModal.classList.add("hide");
+                        giftVideoModal.classList.remove("hide");
+                    }
+                    else{
+                        giftImgModal.src = el.img;
+                        giftImgModal.classList.remove("hide");
+                        giftVideoModal.classList.add("hide");
+                    }
                     giftCanvasModal.classList.add("hide");
-                    giftImgModal.classList.remove("hide");
+
                 }
             }
             prevImg = el.img;
@@ -419,11 +474,21 @@ if(!(userUIdata.error)){
                     canvas.style.width = "285px";
                     card2.appendChild(canvas);
                 }else{
-                    const characterImg = document.createElement('img');
-                    characterImg.className = 'character';
-                    characterImg.src = el.img;
-                    characterImg.alt = 'Character';
-                    card2.appendChild(characterImg);
+                    if(el.img.endsWith("webm")){
+                        const characterVideo = document.createElement('video');
+                        characterVideo.className = 'character';
+                        characterVideo.src = el.img;
+                        characterVideo.alt = 'Character';
+                        settingVideo(characterVideo)
+                        card2.appendChild(characterVideo);
+                    }
+                   else{
+                        const characterImg = document.createElement('img');
+                        characterImg.className = 'character';
+                        characterImg.src = el.img;
+                        characterImg.alt = 'Character';
+                        card2.appendChild(characterImg);
+                    }
                 }
 
                 const price = document.createElement('div');
@@ -510,10 +575,22 @@ if(!(userUIdata.error)){
                     });
                     profileGiftCanvas.classList.remove("hide");
                     profileGiftImg.classList.add("hide");
+                    profileGiftVideo.classList.add("hide")
                 }else{
-                    profileGiftImg.src = el.img;
+                    if(el.img.endsWith("webm")){
+                        profileGiftVideo.src = el.img;
+                        profileGiftVideo.alt = 'Character';
+                        settingVideo(profileGiftVideo)
+                        profileGiftImg.classList.add("hide");
+                        profileGiftVideo.classList.remove("hide")
+                    }
+                   else{
+                        profileGiftImg.src = el.img;
+
+                        profileGiftImg.classList.remove("hide");
+                        profileGiftVideo.classList.add("hide")
+                    }
                     profileGiftCanvas.classList.add("hide");
-                    profileGiftImg.classList.remove("hide");
                 }
             }
 
@@ -601,6 +678,9 @@ if(!(userUIdata.error)){
             } else{
                 noGift.classList.add("hide");
             }
+            if(findingUserProfile){
+                userInfoForView.gifts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            }
             (findingUserProfile ? userInfoForView.gifts :  gifts).map((el) => {
                 console.log(el)
                 const card = document.createElement('div');
@@ -628,11 +708,21 @@ if(!(userUIdata.error)){
                     canvas.style.width = "285px";
                     card.appendChild(canvas);
                 }else{
-                    const characterImg = document.createElement('img');
-                    characterImg.className = 'character';
-                    characterImg.src = el.img;
-                    characterImg.alt = 'Character';
-                    card.appendChild(characterImg);
+                    if(el.img.endsWith("webm")){
+                        const characterVideo = document.createElement('video');
+                        characterVideo.className = 'character';
+                        characterVideo.src = el.img;
+                        characterVideo.alt = 'Character';
+                        settingVideo(characterVideo)
+                        card.appendChild(characterVideo);
+                    }
+                   else{
+                        const characterImg = document.createElement('img');
+                        characterImg.className = 'character';
+                        characterImg.src = el.img;
+                        characterImg.alt = 'Character';
+                        card.appendChild(characterImg);
+                    }
                 }
 
 
@@ -918,22 +1008,22 @@ if(!(userUIdata.error)){
             textProcentGo.style.left = `${procent}%`
         }
         async function setUserXP(id) {
-          try{
-              id = id || userUIdata.user.id;
-              const data = await doFetch("getUserXP", "POST", {id: id} );
-              if(data.error){
-                  return;
-              }
-              const {previousLevelXp, nextLevelXp, xp, level} = data;
-              levelUser.style.backgroundImage = `url("https://raw.githubusercontent.com/hamstermod/giftopiaImages/refs/heads/main/levelsImages/level${level}.png")`
-              levelUser.onclick = () => {
-                  openModalRating(previousLevelXp, nextLevelXp, +xp, level);
-              }
-          }
-          catch(e){
-              console.log(e);
-              showToast("SERVER ERROR", "error");
-          }
+            try{
+                id = id || userUIdata.user.id;
+                const data = await doFetch("getUserXP", "POST", {id: id} );
+                if(data.error){
+                    return;
+                }
+                const {previousLevelXp, nextLevelXp, xp, level} = data;
+                levelUser.style.backgroundImage = `url("https://raw.githubusercontent.com/hamstermod/giftopiaImages/refs/heads/main/levelsImages/level${level}.png")`
+                levelUser.onclick = () => {
+                    openModalRating(previousLevelXp, nextLevelXp, +xp, level);
+                }
+            }
+            catch(e){
+                console.log(e);
+                showToast("SERVER ERROR", "error");
+            }
         }
         setUserXP();
         function closeModalRating(){
