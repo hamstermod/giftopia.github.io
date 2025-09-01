@@ -100,8 +100,7 @@ let isMaintance = false;
 if(isMaintance){
     document.getElementById("maintancePage").classList.remove("hide");
 }
-function settingVideo(videoTag){
-
+function settingVideo(videoTag) {
     videoTag.autoplay = true;
     videoTag.loop = true;
     videoTag.muted = true;
@@ -109,18 +108,24 @@ function settingVideo(videoTag){
     videoTag.preload = 'auto';
     videoTag.controls = false;
     videoTag.setAttribute("controlsList", "nodownload noplaybackrate noremoteplayback nofullscreen");
+    videoTag.setAttribute("webkit-playsinline", "true");
 
     videoTag.style.pointerEvents = "none";
     videoTag.oncontextmenu = e => e.preventDefault();
 
     videoTag.addEventListener("pause", () => {
-        setTimeout(() => characterVideo.play().catch(() => {}), 0);
+        setTimeout(() => videoTag.play().catch(() => {}), 0);
     });
 
     videoTag.addEventListener("loadeddata", () => {
         videoTag.play().catch(() => {});
     });
+
+    videoTag.addEventListener("canplay", () => {
+        videoTag.play().catch(() => {});
+    });
 }
+
 settingVideo(emojiVideo)
 let userGiftsInterval;
 async function doFetch(path, method, bodyReq = {}, init = false){
