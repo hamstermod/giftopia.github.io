@@ -15,7 +15,6 @@ const mainPageButton = document.getElementById("mainPageButton");
 const marketPageButton = document.getElementById("marketPageButton");
 const profilePageButton = document.getElementById("profilePageButton");
 
-
 const profileGiftCloseBtn = document.getElementById("profileGiftCloseBtn");
 const okBtn = document.getElementById("okBtn");
 const profileGiftModal = document.getElementById("profileGiftModal");
@@ -53,8 +52,11 @@ const serverUrl = "http://localhost:3000/" && "https://servergiftopia-production
 const closeProfileAnotherUserView = document.getElementById("closeProfileAnotherUserView");
 const shareProfile = document.getElementById("shareProfile");
 const youHaveNotGiftText = document.getElementById("youHaveNotGiftText");
+const leaderPageButton = document.getElementById("leaderPageButton");
+const leader = document.getElementById("leader");
 const noGift = document.getElementById("noGift");
 const upgrade_modal_header = document.querySelector('#upgrade_modal_header');
+let beforeProfile;
 let currentElementModal = {};
 let transferDataId = 0;
 const blackModelsId = [3]
@@ -100,6 +102,7 @@ let isMaintance = false;
 if(isMaintance){
     document.getElementById("maintancePage").classList.remove("hide");
 }
+
 function settingVideo(videoTag) {
     videoTag.autoplay = true;
     videoTag.loop = true;
@@ -127,6 +130,12 @@ function settingVideo(videoTag) {
 }
 
 settingVideo(emojiVideo)
+new DotLottie({
+    autoplay: true,
+    loop: true,
+    canvas: document.getElementById('leader_trophy'),
+    src: "./images/leader",
+});
 let userGiftsInterval;
 async function doFetch(path, method, bodyReq = {}, init = false){
     try{
@@ -231,7 +240,152 @@ async function renderUserGifts(openModalGift){
 
 if(!(userUIdata.error)){
     window.onload = async () => {
+        async function renderLeader(){
+            let DATA =  await doFetch("getTop20", "GET").then((el) => el.data);
 
+            function el(tag, classes='', attrs={}){
+                const e = document.createElement(tag);
+                if(classes) e.className = classes;
+                for(const k in attrs) e.setAttribute(k, attrs[k]);
+                return e;
+            }
+
+            const players = DATA.map(p => ({
+                name: p.username || p.firstname,
+                xp: parseFloat(p.xp || 0),
+                avatar: p.userImg || '',
+                id: p.id
+            })).sort((a,b) => b.xp - a.xp);
+
+            const [first, second, third] = players;
+            const others = players.slice(3);
+
+            function createPodium(rank, player, sizeClass){
+                const wrapper = el('div','leader_podBlock');
+                const xp = el('div','leader_xp');
+                xp.textContent = `${rank===1? '🥇': rank===2? '🥈':'🥉'} ${player.xp} XP`;
+                wrapper.onclick = () => {
+                    renderProfileGifts(true, player.id, "leader");
+                }
+                wrapper.appendChild(xp);
+
+                const top = el('div','leader_podTop '+sizeClass);
+                // subtle floating gradient inside
+                const glow = el('div','leader_podGlow');
+                top.appendChild(glow);
+
+                const img = el('img','leader_avatar', { src: player.avatar, alt: player.name });
+                top.appendChild(img);
+
+                const name = el('div','leader_name');
+                name.textContent = player.name;
+                top.appendChild(name);
+
+                wrapper.appendChild(top);
+
+                // add entrance delay
+                wrapper.classList.add('leader_animateIn');
+                wrapper.style.animationDelay = (rank*0.08)+'s';
+
+                // small parallax float via CSS animation on glow for variety
+                glow.style.animation = `leader_glowFloat ${(5 + rank*1)}s ease-in-out infinite`;
+                glow.style.transformOrigin = '50% 10%';
+
+                return wrapper;
+            }
+
+            const podiumRoot = document.getElementById('leader_podium');
+            podiumRoot.innerHTML = "";
+            if(second) podiumRoot.appendChild(createPodium(2, second, 'leader_pod-2'));
+            if(first)  podiumRoot.appendChild(createPodium(1, first,  'leader_pod-1'));
+            if(third)  podiumRoot.appendChild(createPodium(3, third,  'leader_pod-3'));
+
+            const styleSheet = document.createElement('style');
+            styleSheet.innerHTML = `
+      @keyframes leader_glowFloat {
+        0% { transform: translateY(0) scale(1); opacity:0.14; }
+        50% { transform: translateY(-8px) scale(1.03); opacity:0.22; }
+        100% { transform: translateY(0) scale(1); opacity:0.14; }
+      }
+    `;
+            document.head.appendChild(styleSheet);
+
+            const listRoot = document.getElementById('leader_listWrap');
+            listRoot.innerHTML = "";
+            others.forEach((pl, idx) => {
+                const row = el('div','leader_row');
+                row.classList.add('leader_animateIn');
+                row.style.animationDelay = (0.12 + idx*0.06) + 's';
+
+                const left = el('div','leader_rowLeft');
+                const index = el('div','leader_index');
+                index.textContent = (idx+4) + '.';
+                left.appendChild(index);
+
+                const avat = el('img','leader_smallAvatar', { src: pl.avatar, alt: pl.name });
+                left.appendChild(avat);
+
+                const name = el('div','leader_rowName');
+                name.textContent = pl.name;
+                left.appendChild(name);
+
+                const xp = el('div','leader_rowXP');
+                xp.textContent = pl.xp + ' XP';
+
+                row.appendChild(left);
+                row.appendChild(xp);
+                row.onclick = () => {
+                    renderProfileGifts(true, pl.id, "leader")
+                }
+                listRoot.appendChild(row);
+            });
+
+            (function makeParticles(){
+                const container = document.getElementById('leader_particles_container');
+                const count = 18;
+                for(let i=0;i<count;i++){
+                    const node = el('div','leader_particle');
+                    const size = Math.random()*6 + 3;
+                    node.style.width = size + 'px';
+                    node.style.height = size + 'px';
+                    node.style.left = (Math.random()*100) + '%';
+                    node.style.top  = (Math.random()*100) + '%';
+                    node.style.animationDuration = (6 + Math.random()*6) + 's';
+                    node.style.animationDelay = (Math.random()*3) + 's';
+                    node.style.opacity = (0.12 + Math.random()*0.4);
+                    container.appendChild(node);
+                }
+            })();
+
+            document.querySelectorAll('#leader img').forEach(img=>{
+                img.addEventListener('error', ()=> {
+                    const p = img.parentElement;
+                    const tmp = document.createElement('div');
+                    tmp.className = img.className;
+                    tmp.style.display = 'inline-flex';
+                    tmp.style.alignItems = 'center';
+                    tmp.style.justifyContent = 'center';
+                    tmp.style.background = 'linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))';
+                    tmp.textContent = (img.alt || 'User').slice(0,2);
+                    img.replaceWith(tmp);
+                });
+            });
+
+            (function podiumTilt(){
+                const wrap = document.getElementById('leader_podium');
+                if(!wrap) return;
+                wrap.addEventListener('mousemove', (e)=>{
+                    const rect = wrap.getBoundingClientRect();
+                    const cx = rect.left + rect.width/2;
+                    const cy = rect.top + rect.height/2;
+                    const dx = (e.clientX - cx) / rect.width;
+                    const dy = (e.clientY - cy) / rect.height;
+                    wrap.style.transform = `perspective(800px) rotateX(${(-dy*3).toFixed(2)}deg) rotateY(${(dx*4).toFixed(2)}deg)`;
+                });
+                wrap.addEventListener('mouseleave', ()=> wrap.style.transform = 'none');
+            })();
+        }
+        renderLeader();
         async function getInfoGiftOrProfile(){
 
             if(userUIdata.start_param){
@@ -302,9 +456,11 @@ if(!(userUIdata.error)){
             main.classList.add("hide");
             market.classList.add("hide");
             profile.classList.add("hide");
+            leader.classList.add("hide")
             mainPageButton.classList.remove("active");
             marketPageButton.classList.remove("active");
             profilePageButton.classList.remove("active");
+            leaderPageButton.classList.remove("active");
 
             if(page === "main"){
                 renderGift();
@@ -319,6 +475,12 @@ if(!(userUIdata.error)){
             if(page === "market"){
                 market.classList.remove("hide");
                 marketPageButton.classList.add("active");
+                return;
+            }
+            if(page === "leader"){
+                leader.classList.remove("hide");
+                leaderPageButton.classList.add("active");
+                renderLeader();
                 return;
             }
             if(page === "profile"){
@@ -487,7 +649,7 @@ if(!(userUIdata.error)){
                         settingVideo(characterVideo)
                         card2.appendChild(characterVideo);
                     }
-                   else{
+                    else{
                         const characterImg = document.createElement('img');
                         characterImg.className = 'character';
                         characterImg.src = el.img;
@@ -525,9 +687,10 @@ if(!(userUIdata.error)){
         }
         marketPageButton.onclick = () => openPage('market');
         profilePageButton.onclick = () => {
-
             openPage('profile');
-
+        }
+        leaderPageButton.onclick = () => {
+            openPage('leader');
         }
 
 
@@ -589,7 +752,7 @@ if(!(userUIdata.error)){
                         profileGiftImg.classList.add("hide");
                         profileGiftVideo.classList.remove("hide")
                     }
-                   else{
+                    else{
                         profileGiftImg.src = el.img;
 
                         profileGiftImg.classList.remove("hide");
@@ -645,7 +808,12 @@ if(!(userUIdata.error)){
         menuButton.onclick = toggleMenu;
         closeProfileAnotherUserView.onclick = () => {
             profile.classList.add("hide");
-            main.classList.remove("hide")
+            if(beforeProfile === "leader"){
+                leader.classList.remove("hide");
+            }
+           else{
+                main.classList.remove("hide")
+            }
         }
         window.addEventListener("click", function(e) {
             if (!e.target.closest(".menu-container")) {
@@ -653,8 +821,9 @@ if(!(userUIdata.error)){
             }
         });
 
-        async function renderProfileGifts(findingUserProfile, profileId){
-
+        async function renderProfileGifts(findingUserProfile, profileId, originPage = "main"){
+            leader.classList.add("hide");
+            beforeProfile = originPage;
             let userInfoForView = findingUserProfile ?  await doFetch("getUserViewerInfo", "POST", {id: profileId}) : {};
             if(!findingUserProfile){
                 renderProfileInfo();
@@ -687,7 +856,6 @@ if(!(userUIdata.error)){
                 userInfoForView.gifts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             }
             (findingUserProfile ? userInfoForView.gifts :  gifts).map((el) => {
-                console.log(el)
                 const card = document.createElement('div');
                 card.className = `card ${el.status.toLowerCase()} ${el.minted ? (blackModelsId.includes(el.idGift) ? "blackBG" : "") : ""}`;
                 card.onclick = () => openModalProfile(el, findingUserProfile, false, userInfoForView);
@@ -721,7 +889,7 @@ if(!(userUIdata.error)){
                         settingVideo(characterVideo)
                         card.appendChild(characterVideo);
                     }
-                   else{
+                    else{
                         const characterImg = document.createElement('img');
                         characterImg.className = 'character';
                         characterImg.src = el.img;
@@ -755,6 +923,8 @@ if(!(userUIdata.error)){
             canvas: document.getElementById('nogiftCanvas'),
             src: "./images/nogift",
         });
+
+
 
 
 
@@ -1042,4 +1212,3 @@ if(!(userUIdata.error)){
         rating_btn.onclick = closeModalRating;
     }
 }
-
