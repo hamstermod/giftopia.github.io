@@ -48,7 +48,7 @@ const giftsUsersUsername = document.getElementById("giftsUsersUsername");
 const giftsUsersItemName = document.getElementById("giftsUsersItemName");
 const usersGiftNotification = document.getElementById("usersGiftNotification");
 const userId = document.getElementById("userId");
-const serverUrl = "http://localhost:3000/" && "https://servergiftopia-production.up.railway.app/";
+const serverUrl = "http://localhost:3000/" && "https://giftopiaserverorig-production.up.railway.app/";
 const closeProfileAnotherUserView = document.getElementById("closeProfileAnotherUserView");
 const shareProfile = document.getElementById("shareProfile");
 const youHaveNotGiftText = document.getElementById("youHaveNotGiftText");
@@ -242,14 +242,12 @@ if(!(userUIdata.error)){
     window.onload = async () => {
         async function renderLeader(){
             let DATA =  await doFetch("getTop20", "GET").then((el) => el.data);
-
             function el(tag, classes='', attrs={}){
                 const e = document.createElement(tag);
                 if(classes) e.className = classes;
                 for(const k in attrs) e.setAttribute(k, attrs[k]);
                 return e;
             }
-
             const players = DATA.map(p => ({
                 name: p.username || p.firstname,
                 xp: parseFloat(p.xp || 0),

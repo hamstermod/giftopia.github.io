@@ -864,7 +864,8 @@ input::placeholder {
 #loadingPage, #maintancePage{
     width: 100%;
     height: 100%;
-    background-image: url("./images/loadingImage.png");
+    /*background-image: url("./images/loadingImage.png");*/
+    background-image: url("./images/loadingImage2.jpg");
     background-size: cover;
     background-position: center;
     position: fixed;
