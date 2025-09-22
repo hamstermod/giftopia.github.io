@@ -1125,13 +1125,13 @@ if(!(userUIdata.error)){
             blur.classList.remove('hide');
             divGiftForTransfer.innerHTML = "";
             transferGiftName.innerText = currentElementModal.name;
-            // if(currentElementModal.minted){//new feature
-            //     transferMintedGiftText.classList.remove("hide");
-            //     transferGiftText.classList.add("hide");
-            // } else{
-            //     transferMintedGiftText.classList.add("hide");
-            //     transferGiftText.classList.remove("hide");
-            // }
+            if(currentElementModal.minted){//new feature
+                transferMintedGiftText.classList.remove("hide");
+                transferGiftText.classList.add("hide");
+            } else{
+                transferMintedGiftText.classList.add("hide");
+                transferGiftText.classList.remove("hide");
+            }
 
             if(currentElementModal.img.endsWith("json")){
                 const canvas = document.createElement("canvas");
