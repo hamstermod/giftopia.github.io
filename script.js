@@ -56,6 +56,8 @@ const leaderPageButton = document.getElementById("leaderPageButton");
 const leader = document.getElementById("leader");
 const noGift = document.getElementById("noGift");
 const upgrade_modal_header = document.querySelector('#upgrade_modal_header');
+const transferMintedGiftText = document.getElementById("transferMintedGiftText");
+const transferGiftText = document.getElementById("transferGiftText");
 let beforeProfile;
 let currentElementModal = {};
 let transferDataId = 0;
@@ -213,6 +215,7 @@ async function renderUserGifts(openModalGift){
                 });
                 emojiCanvas.classList.remove("hide");
                 emojiImg.classList.add("hide");
+                emojiVideo.classList.add("hide");
             } else{
                 if(targ.img.endsWith(".webm")){
                     emojiVideo.src = targ.img;
@@ -780,6 +783,9 @@ if(!(userUIdata.error)){
             }
             profileGiftName.innerText = el.name;
             giftBadgeModal.innerText = el.status;
+            console.log(currentElementModal.idGift);
+            console.log(el.idGift)
+            console.log("FUCK")
             giftProfileCard.className = `profileGiftCard  modal-content ${el.status?.toLowerCase()} ${el.minted ? (blackModelsId.includes(currentElementModal.idGift) ? "blackBG" : "") : ""}`;
 
             profileGiftPrice.innerText = el.price;
@@ -1093,7 +1099,7 @@ if(!(userUIdata.error)){
         blur.addEventListener('click', closeModalTransfer);
 
         sendBtn.addEventListener('click', async () => {
-            const res = await doFetch("sendGift", "POST", {giftId: currentElementModal.giftId, id: +transferDataId}, true);
+            const res = await doFetch("sendGift", "POST", {giftId: currentElementModal.giftId, id: (+transferDataId || transferDataId)}, true);
             if(res.invoice){
                 Telegram.WebApp.openInvoice(res.invoice, async (e) => {
                     if(e === "paid"){
@@ -1119,6 +1125,14 @@ if(!(userUIdata.error)){
             blur.classList.remove('hide');
             divGiftForTransfer.innerHTML = "";
             transferGiftName.innerText = currentElementModal.name;
+            // if(currentElementModal.minted){//new feature
+            //     transferMintedGiftText.classList.remove("hide");
+            //     transferGiftText.classList.add("hide");
+            // } else{
+            //     transferMintedGiftText.classList.add("hide");
+            //     transferGiftText.classList.remove("hide");
+            // }
+
             if(currentElementModal.img.endsWith("json")){
                 const canvas = document.createElement("canvas");
                 new DotLottie({

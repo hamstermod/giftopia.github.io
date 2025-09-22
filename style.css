@@ -718,6 +718,7 @@ h2 {
 .card .left.rarity-badge {
     top: 10px;
     left: 10px;
+    z-index: 2;
 }
 
 .transferBlur, #ratingBlurEffect {
@@ -951,6 +952,9 @@ input::placeholder {
     font-size: 24px;
     width: 100%;
     text-align: center;
+}
+#giftParent{
+    justify-items: center;
 }
 #giftParent > div{
     position: relative;
@@ -1478,3 +1482,8 @@ video {
     box-sizing:border-box;
     overflow:hidden;
 }
+
+
+
+
+
