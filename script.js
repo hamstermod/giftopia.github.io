@@ -240,7 +240,9 @@ async function renderUserGifts(openModalGift){
         }, 5000)
     }
 }
-
+document.getElementById("getgemsLink").onclick =() => {
+    window.open("https://getgems.io/giftopiagame#collections", "_blank")
+}
 if(!(userUIdata.error)){
     window.onload = async () => {
         async function renderLeader(){
@@ -919,7 +921,7 @@ if(!(userUIdata.error)){
             autoplay: true,
             loop: true,
             canvas: document.getElementById('lottieMarket'),
-            src: "./images/market",
+            src: "./images/market.json",
         });
         new DotLottie({
             autoplay: true,
@@ -927,9 +929,6 @@ if(!(userUIdata.error)){
             canvas: document.getElementById('nogiftCanvas'),
             src: "./images/nogift",
         });
-
-
-
 
 
 
