@@ -48,7 +48,7 @@ const giftsUsersUsername = document.getElementById("giftsUsersUsername");
 const giftsUsersItemName = document.getElementById("giftsUsersItemName");
 const usersGiftNotification = document.getElementById("usersGiftNotification");
 const userId = document.getElementById("userId");
-const serverUrl = "http://localhost:3000/" && "https://giftopiaserverorig-production.up.railway.app/";
+const serverUrl = "http://localhost:3000/" && "https://server-giftopia.vercel.app/";
 const closeProfileAnotherUserView = document.getElementById("closeProfileAnotherUserView");
 const shareProfile = document.getElementById("shareProfile");
 const youHaveNotGiftText = document.getElementById("youHaveNotGiftText");
@@ -100,7 +100,7 @@ function parseQuery(query) {
 }
 const search = Telegram.WebApp.initData ;
 const userUIdata = parseQuery(search);
-let isMaintance = true;
+let isMaintance = false;
 if(isMaintance){
     document.getElementById("maintancePage").classList.remove("hide");
 }
