@@ -100,7 +100,7 @@ function parseQuery(query) {
 }
 const search = Telegram.WebApp.initData ;
 const userUIdata = parseQuery(search);
-let isMaintance = false;
+let isMaintance = true;
 if(isMaintance){
     document.getElementById("maintancePage").classList.remove("hide");
 }
